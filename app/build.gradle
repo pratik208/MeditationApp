@@ -8,7 +8,7 @@ plugins {
 android {
     compileSdk 31
     defaultConfig {
-        applicationId "com.miu.meditationapp"
+        applicationId "com.codecrafters.meditationapp"
         minSdk 16
         targetSdk 31
         versionCode 1
@@ -36,6 +36,7 @@ android {
 }
 
 dependencies {
+    implementation 'com.google.firebase:firebase-crashlytics-buildtools:2.9.9'
     apply plugin: 'com.google.gms.google-services'
     implementation 'com.google.firebase:firebase-database-ktx:20.0.2'
     apply plugin : "kotlin-android"

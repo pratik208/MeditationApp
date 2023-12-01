@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.miu.meditationapp">
+    package="com.codecrafters.meditationapp">
 
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="android.permission.INTERNET" />
@@ -15,19 +15,19 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.MeditationApp">
         <activity
-            android:name=".LoginAddUser"
+            android:name="com.codecrafters.meditationapp.LoginAddUser"
             android:exported="true" />
         <activity
-            android:name=".LoginForgotPassword"
+            android:name="com.codecrafters.meditationapp.LoginForgotPassword"
             android:exported="true" />
         <activity
-            android:name=".ui.main.VideosView"
+            android:name="com.codecrafters.meditationapp.ui.main.VideosView"
             android:exported="true" />
         <activity
-            android:name=".OnboardingActivity"
+            android:name="com.codecrafters.meditationapp.OnboardingActivity"
             android:exported="false" />
         <activity
-            android:name=".LoginActivity"
+            android:name="com.codecrafters.meditationapp.LoginActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -36,19 +36,19 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".BreathActivity"
+            android:name="com.codecrafters.meditationapp.BreathActivity"
             android:exported="false" />
         <activity
-            android:name=".MeditationActivity"
+            android:name="com.codecrafters.meditationapp.MeditationActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
             android:exported="false"
             android:label="@string/title_activity_meditation"
             android:theme="@style/Theme.MeditationApp.Fullscreen" />
         <activity
-            android:name=".MainActivity"
+            android:name="com.codecrafters.meditationapp.MainActivity"
             android:exported="true" />
 
-        <receiver android:name=".helper.NotificationReceiver" />
+        <receiver android:name="com.codecrafters.meditationapp.helper.NotificationReceiver" />
     </application>
 
 </manifest>
