@@ -35,34 +35,34 @@ class OnboardingActivity : AppCompatActivity() {
         onboardingItemsAdapter = OnboardingItemsAdapter(
             listOf(
                 OnboardingItem(
-                    onboardingImage = R.drawable.img_hello,
-                    title = "Welcome to GENO",
-                    description = "We'll show you how to train your mind for happier, healthier life."
+                    onboardingImage = R.drawable.img_1,
+                    title = "Welcome to Boostify App",
+                    description = "Empower Your Happiness with Boostify And Elevate Your Mood with Boostify."
                 ),
                 OnboardingItem(
-                    onboardingImage = R.drawable.img_medi,
-                    title = "Meditation made simple!",
-                    description = "It's okay if you've never meditated before"
-                ),
-                OnboardingItem(
-                    onboardingImage = R.drawable.img_book,
-                    title = "Breathe exercise",
-                    description = "Learn how to build your resilience using your own breathe"
-                ),
-                OnboardingItem(
-                    onboardingImage = R.drawable.img_communi,
+                    onboardingImage = R.drawable.img_2,
                     title = "Community",
-                    description = "You can reach out to anyone at anytime."
+                    description = "Connect, Chat, and Find Support in Our Empowering Community"
                 ),
                 OnboardingItem(
-                    onboardingImage = R.drawable.img_paint,
-                    title = "Courses for absolute beginners ",
-                    description = "In fact, we made a quick video to help you learn the basics"
+                    onboardingImage = R.drawable.img_3,
+                    title = "Expert Advice at Your Fingertips",
+                    description = "Consult with Trusted Doctors on the Consulting Board."
                 ),
+                OnboardingItem(
+                    onboardingImage = R.drawable.img_4,
+                    title = "MeditateMe",
+                    description = "Explore Serenity with 'MeditateMe' on Boostify."
+                ),
+                /*   OnboardingItem(
+                       onboardingImage = R.drawable.img_paint,
+                       title = "Courses for absolute beginners ",
+                       description = "In fact, we made a quick video to help you learn the basics"
+                   ),*/
                 OnboardingItem(
                     onboardingImage = R.drawable.ready,
                     title = "Ready!",
-                    description = "Now, get ready to sit back and enjoy GENO application"
+                    description = "Now, get ready to sit back and enjoy Boostify application"
                 )
             )
         )
