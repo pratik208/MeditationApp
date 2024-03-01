@@ -25,32 +25,40 @@ import kotlinx.android.synthetic.main.activity_login.*
 
 
 class LoginActivity : AppCompatActivity() {
+
+    // Tag for logging
     companion object {
         val TAG = "login"
     }
+
+    // Declaring UI elements
     lateinit var inputEmail: TextInputEditText
     lateinit var inputPassword: TextInputEditText
-    lateinit var loginbutton:Button
-    lateinit var forgotbutton:TextView
-    lateinit var registertv:TextView
-    lateinit var loadingPB:ProgressBar
-    lateinit var googleLoginBtn:SignInButton
-    lateinit var mAuth:FirebaseAuth
+    lateinit var loginbutton: Button
+    lateinit var forgotbutton: TextView
+    lateinit var registertv: TextView
+    lateinit var loadingPB: ProgressBar
+    lateinit var googleLoginBtn: SignInButton
+
+    // Firebase Authentication instance
+    lateinit var mAuth: FirebaseAuth
+
+    // Google Sign-In variables
     private lateinit var oneTapClient: SignInClient
     private lateinit var signInRequest: BeginSignInRequest
     private lateinit var preferences: SharedPreferences
-    private val REQ_ONE_TAP = 2  // Can be any integer unique to the Activity
+    private val REQ_ONE_TAP = 2  // Request code for one-tap sign-in
+
+    // Flag to determine whether to show one-tap UI or not
     private var showOneTapUI = true
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_login)
 
-
-
+        // Initializing UI elements
         inputEmail = input_email
         inputPassword = input_password
-
         loginbutton = findViewById(R.id.btn_login)
         registertv = findViewById(R.id.registerTV)
         forgotbutton = findViewById(R.id.forgotPassword)
@@ -58,6 +66,7 @@ class LoginActivity : AppCompatActivity() {
         loadingPB = findViewById(R.id.progressbar)
         googleLoginBtn = findViewById(R.id.sign_in_button)
 
+        // Initialize Google SignInClient and setup sign-in request
         oneTapClient = Identity.getSignInClient(this)
         signInRequest = BeginSignInRequest.builder()
             .setPasswordRequestOptions(BeginSignInRequest.PasswordRequestOptions.builder()
@@ -66,15 +75,13 @@ class LoginActivity : AppCompatActivity() {
             .setGoogleIdTokenRequestOptions(
                 BeginSignInRequest.GoogleIdTokenRequestOptions.builder()
                     .setSupported(true)
-                    // Your server's client ID, not your Android client ID.
-                    .setServerClientId(getString(R.string.firebaseid))
-                    // Only show accounts previously used to sign in.
+                    .setServerClientId(getString(R.string.firebaseid)) // Your server's client ID
                     .setFilterByAuthorizedAccounts(true)
                     .build())
-            // Automatically sign in when exactly one credential is retrieved.
-            .setAutoSelectEnabled(true)
+            .setAutoSelectEnabled(true) // Automatically select credentials if only one available
             .build()
 
+        // Set click listener for Google Sign-In button
         googleLoginBtn.setOnClickListener() {
             oneTapClient.beginSignIn(signInRequest)
                 .addOnSuccessListener(this) { result ->
@@ -87,15 +94,14 @@ class LoginActivity : AppCompatActivity() {
                     }
                 }
                 .addOnFailureListener(this) { e ->
-                    // No saved credentials found. Launch the One Tap sign-up flow, or
-                    // do nothing and continue presenting the signed-out UI.
                     Log.d(TAG, e.localizedMessage)
                 }
         }
 
-
+        // Retrieve shared preferences for onboarding check
         preferences = getSharedPreferences("ONBOARD", Context.MODE_PRIVATE)
 
+        // Set click listeners for Register and Forgot Password
         registertv.setOnClickListener() {
             startActivity(Intent(this, LoginAddUser::class.java))
         }
@@ -103,13 +109,14 @@ class LoginActivity : AppCompatActivity() {
             startActivity(Intent(this, LoginForgotPassword::class.java))
         }
 
+        // Set click listener for login button
         loginbutton.setOnClickListener() {
-            val email:String = inputEmail.text.toString()
-            val pwd:String = inputPassword.text.toString()
+            val email: String = inputEmail.text.toString()
+            val pwd: String = inputPassword.text.toString()
             if (TextUtils.isEmpty(email) || TextUtils.isEmpty(pwd)) {
                 Toast.makeText(this, "Please enter your credentials", Toast.LENGTH_SHORT).show()
-
             } else {
+                // Authenticate user with Firebase
                 mAuth.signInWithEmailAndPassword(email, pwd).addOnCompleteListener(this) { task ->
                     if (task.isSuccessful) {
                         loadingPB.visibility = View.GONE
@@ -120,10 +127,11 @@ class LoginActivity : AppCompatActivity() {
                         Toast.makeText(this, "Email or Password is wrong. Please try again.", Toast.LENGTH_SHORT).show()
                     }
                 }
-//                mAuth.signinwith
             }
         }
     }
+
+    // Handle the result of one-tap sign-in
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
 
@@ -134,30 +142,21 @@ class LoginActivity : AppCompatActivity() {
                     val idToken = credential.googleIdToken
                     when {
                         idToken != null -> {
-                            // Got an ID token from Google. Use it to authenticate
-                            // with Firebase.
+                            // Handle ID token, possibly authenticate with Firebase
                             Log.d(TAG, "Got ID token.")
                         }
                         else -> {
-                            // Shouldn't happen.
                             Log.d(TAG, "No ID token!")
                         }
                     }
                 } catch (e: ApiException) {
-                    // ...
+                    // Handle API exception
                 }
             }
         }
     }
-    private fun startMainActivity() {
-        if (isSeenOnbaord()) {
-            startActivity(Intent(this, MainActivity::class.java))
-        } else {
-            startActivity(Intent(this, OnboardingActivity::class.java))
-        }
-        finish()
-    }
 
+    // Redirect to MainActivity if user is already signed in
     override fun onStart() {
         super.onStart()
         var user: FirebaseUser? = mAuth.currentUser
@@ -166,7 +165,18 @@ class LoginActivity : AppCompatActivity() {
         }
     }
 
-    fun isSeenOnbaord(): Boolean {
+    // Check if onboarding is completed
+    fun isSeenOnboard(): Boolean {
         return preferences.getBoolean("ISCOMPLETE", false)
+    }
+
+    // Start MainActivity or OnboardingActivity based on onboarding completion
+    private fun startMainActivity() {
+        if (isSeenOnboard()) {
+            startActivity(Intent(this, MainActivity::class.java))
+        } else {
+            startActivity(Intent(this, OnboardingActivity::class.java))
+        }
+        finish()
     }
 }
