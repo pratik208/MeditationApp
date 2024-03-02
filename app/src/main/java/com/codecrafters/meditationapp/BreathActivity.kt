@@ -13,9 +13,6 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.codecrafters.meditationapp.ui.main.HomeViewModel
 import kotlinx.android.synthetic.main.activity_breath.*
-import kotlinx.android.synthetic.main.activity_breath.close
-import kotlinx.android.synthetic.main.activity_breath.indicator
-import kotlinx.android.synthetic.main.activity_breath.start
 import java.util.*
 import java.util.concurrent.TimeUnit
 
@@ -32,23 +29,30 @@ class BreathActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_breath)
 
+        // Initialize Firebase variables
         currentUser = FirebaseAuth.getInstance().currentUser!!
         val uid = FirebaseAuth.getInstance().uid
+
+        // Initialize ViewModel
         viewModel = ViewModelProvider(this).get(HomeViewModel::class.java)
         viewModel.init(applicationContext, uid!!)
 
+        // Initialize views and UI components
         textIndicator = indicator
         timer = createTimer()
 
+        // Set onClickListener for the start button
         start.setOnClickListener {
             toggle()
         }
 
+        // Set onClickListener for the close button
         close.setOnClickListener {
             showDialog(this)
         }
     }
 
+    // Toggle the breathing exercise
     private fun toggle() {
         if(isRunning) {
             stopExercise()
@@ -60,6 +64,7 @@ class BreathActivity : AppCompatActivity() {
         }
     }
 
+    // Create a CountDownTimer for the breathing exercise
     private fun createTimer(): CountDownTimer {
         return object: CountDownTimer(3 * 60000, 1000) {
             var sec = 0L
@@ -68,8 +73,10 @@ class BreathActivity : AppCompatActivity() {
                 minutes = TimeUnit.MILLISECONDS.toMinutes(ms) - TimeUnit.HOURS.toMinutes(TimeUnit.MILLISECONDS.toHours(ms))
                 sec = TimeUnit.MILLISECONDS.toSeconds(ms) - TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(ms))
 
+                // Update the UI with the remaining time
                 textIndicator.text = "${minutes.toString().padStart(2, '0')}:${sec.toString().padStart(2, '0')}"
 
+                // Provide a verbal instruction when necessary
                 if(minutes == 2L && sec == 57L) {
                     tts = TextToSpeech(applicationContext, TextToSpeech.OnInitListener {
                         if(it == TextToSpeech.SUCCESS) {
@@ -87,12 +94,14 @@ class BreathActivity : AppCompatActivity() {
         }
     }
 
+    // Stop the breathing exercise
     fun stopExercise() {
         breathe.pauseAnimation()
         isRunning = false
         timer.cancel()
     }
 
+    // Show confirmation dialog when closing the activity
     private fun showDialog(context: Context){
         val builder: AlertDialog.Builder = AlertDialog.Builder(context)
 
@@ -107,6 +116,7 @@ class BreathActivity : AppCompatActivity() {
         alert.show()
     }
 
+    // Update breathing exercise statistics when the activity is stopped
     override fun onStop() {
         super.onStop()
 

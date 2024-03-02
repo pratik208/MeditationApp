@@ -5,15 +5,14 @@ import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Context
-import android.content.Context.ALARM_SERVICE
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.lifecycle.ViewModelProvider
 import com.google.android.material.timepicker.MaterialTimePicker
 import com.google.android.material.timepicker.TimeFormat
@@ -47,11 +46,13 @@ class HomeFragment : Fragment() {
         currentUser = FirebaseAuth.getInstance().currentUser!!
         val uid = FirebaseAuth.getInstance().uid
 
+        // Initialize ViewModel
         viewModel = ViewModelProvider(this).get(HomeViewModel::class.java)
         viewModel.init(requireContext(), uid!!)
 
         updateReportTexts(view)
 
+        // Retrieve user data from Firebase Database
         database = FirebaseDatabase.getInstance().getReference("users")
         database.child(uid!!).get().addOnSuccessListener {
             if (it.exists()) {
@@ -63,8 +64,8 @@ class HomeFragment : Fragment() {
             Toast.makeText(context, "Couldn't find the user. Internet connection have to connected properly.", Toast.LENGTH_SHORT).show()
         }
 
-        alarmManager = context?.getSystemService(ALARM_SERVICE) as AlarmManager
-
+        // Set up button click listeners for meditation and breathing activities
+        alarmManager = context?.getSystemService(Context.ALARM_SERVICE) as AlarmManager
         view.button.setOnClickListener {
             startActivity(Intent(context, MeditationActivity::class.java))
         }
@@ -73,8 +74,7 @@ class HomeFragment : Fragment() {
             startActivity(Intent(context, BreathActivity::class.java))
         }
 
-        updateReportProgress(view)
-
+        // Set up reminder button click listener
         view.remind.setOnClickListener {
             picker = MaterialTimePicker.Builder()
                 .setTimeFormat(TimeFormat.CLOCK_12H)
@@ -92,11 +92,9 @@ class HomeFragment : Fragment() {
                 calendar.set(Calendar.SECOND, 0)
                 calendar.set(Calendar.MILLISECOND, 0)
 
-                var intent = Intent(context, NotificationReceiver::class.java)
-
-                var pendingIntent: PendingIntent = PendingIntent.getBroadcast(this.context, 200, intent, 0)
-
-                var alarmManager: AlarmManager = context?.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+                // Set up alarm for reminder notification
+                val intent = Intent(context, NotificationReceiver::class.java)
+                val pendingIntent: PendingIntent = PendingIntent.getBroadcast(this.context, 200, intent, 0)
                 alarmManager.setInexactRepeating(AlarmManager.RTC_WAKEUP, calendar.timeInMillis, AlarmManager.INTERVAL_DAY, pendingIntent)
                 Toast.makeText(context, "Successfully set reminder at: ${calendar.get(Calendar.HOUR_OF_DAY).toString()}:${calendar.get(Calendar.MINUTE).toString()} every day.", Toast.LENGTH_SHORT).show()
             }
@@ -105,6 +103,7 @@ class HomeFragment : Fragment() {
         return view
     }
 
+    // Update text fields in the report section
     private fun updateReportTexts(view: View) {
         view.val_meditate_times.text = viewModel.getMeditationCount().toString()
         view.val_meditate.text = viewModel.getMeditationMin().toString()
@@ -112,6 +111,7 @@ class HomeFragment : Fragment() {
         view.val_breathe.text = viewModel.getBreatheMin().toString()
     }
 
+    // Update progress bar and text fields in the report section
     private fun updateReportProgress(view: View) {
         val medMin = viewModel.getMeditationMin()
         val breMin = viewModel.getBreatheMin()
@@ -134,20 +134,20 @@ class HomeFragment : Fragment() {
         super.onResume()
     }
 
+    // Create notification channel for reminders (Android O and above)
     fun createNotificationChannel() {
         if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             var name: CharSequence = "MORNING Meditation Channel"
-            var description: String = "Channel for morning meditation remender"
-
+            var description: String = "Channel for morning meditation reminder"
             var importance: Int = NotificationManager.IMPORTANCE_DEFAULT
             var channel: NotificationChannel = NotificationChannel("MORNING", name, importance)
             channel.description = description
-
             var notificationManager: NotificationManager? = context?.getSystemService(NotificationManager::class.java)
             notificationManager?.createNotificationChannel(channel)
         }
     }
 
+    // Cancel the reminder alarm
     fun cancelAlarm() {
         var intent = Intent(context, MeditationActivity::class.java)
         var pendingInteng = PendingIntent.getBroadcast(context, 200, intent, 0)

@@ -1,5 +1,6 @@
 package com.codecrafters.meditationapp
 
+import OnboardingItem
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
@@ -24,14 +25,21 @@ class OnboardingActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_onboarding)
 
+        // Initialize SharedPreferences
         preferences = applicationContext.getSharedPreferences("ONBOARD", Context.MODE_PRIVATE)
 
+        // Set up onboarding items
         setOnboardingItems()
+
+        // Set up indicators
         setupIndicators()
+
+        // Set current indicator to the first item
         setCurrentIndicator(0)
     }
 
-    private fun setOnboardingItems(){
+    private fun setOnboardingItems() {
+        // Create adapter with onboarding items
         onboardingItemsAdapter = OnboardingItemsAdapter(
             listOf(
                 OnboardingItem(
@@ -66,50 +74,63 @@ class OnboardingActivity : AppCompatActivity() {
                 )
             )
         )
+
+        // Set up ViewPager2 with adapter
         val onboardingViewPager = findViewById<ViewPager2>(R.id.onboardingViewPager)
         onboardingViewPager.adapter = onboardingItemsAdapter
+
+        // Handle page change to update indicators
         onboardingViewPager.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
             override fun onPageSelected(position: Int) {
                 super.onPageSelected(position)
                 setCurrentIndicator(position)
             }
         })
-        (onboardingViewPager.getChildAt(0) as RecyclerView). overScrollMode =
-            RecyclerView.OVER_SCROLL_NEVER
-        findViewById<ImageView>(R.id.imageNext).setOnClickListener{
-            if (onboardingViewPager.currentItem+1 < onboardingItemsAdapter.itemCount){
+
+        // Disable overscroll effect
+        (onboardingViewPager.getChildAt(0) as RecyclerView).overScrollMode = RecyclerView.OVER_SCROLL_NEVER
+
+        // Handle "Next" button click
+        findViewById<ImageView>(R.id.imageNext).setOnClickListener {
+            if (onboardingViewPager.currentItem + 1 < onboardingItemsAdapter.itemCount) {
                 onboardingViewPager.currentItem += 1
             } else {
+                // Navigate to home activity when onboarding is completed
                 navigateToHomeActivity()
                 setCompleteOnboarding()
             }
         }
-        findViewById<TextView>(R.id.textSkip).setOnClickListener{
+
+        // Handle "Skip" text click
+        findViewById<TextView>(R.id.textSkip).setOnClickListener {
             navigateToHomeActivity()
         }
-        findViewById<MaterialButton>(R.id.buttonGetStarted).setOnClickListener{
+
+        // Handle "Get Started" button click
+        findViewById<MaterialButton>(R.id.buttonGetStarted).setOnClickListener {
             navigateToHomeActivity()
             setCompleteOnboarding()
         }
-
     }
 
     private fun navigateToHomeActivity() {
-        startActivity(Intent(applicationContext,MainActivity::class.java))
+        startActivity(Intent(applicationContext, MainActivity::class.java))
         finish()
     }
 
     private fun setCompleteOnboarding() {
+        // Set onboarding completion status in SharedPreferences
         preferences.edit().putBoolean("ISCOMPLETE", true).apply()
     }
 
-
-    private fun setupIndicators(){
+    private fun setupIndicators() {
+        // Find indicator container
         indicatorContainer = findViewById(R.id.indicatorsContainer)
+
+        // Create indicators and add them to the container
         val indicators = arrayOfNulls<ImageView>(onboardingItemsAdapter.itemCount)
-        val layoutParams: LinearLayout.LayoutParams =
-            LinearLayout.LayoutParams(WRAP_CONTENT, WRAP_CONTENT )
-        layoutParams.setMargins(8,0,8,0,)
+        val layoutParams = LinearLayout.LayoutParams(WRAP_CONTENT, WRAP_CONTENT)
+        layoutParams.setMargins(8, 0, 8, 0)
         for (i in indicators.indices) {
             indicators[i] = ImageView(applicationContext)
             indicators[i]?.let {
@@ -124,15 +145,17 @@ class OnboardingActivity : AppCompatActivity() {
             }
         }
     }
-    private fun setCurrentIndicator (position: Int){
+
+    private fun setCurrentIndicator(position: Int) {
+        // Set the indicator corresponding to the current page
         val childCount = indicatorContainer.childCount
-        for( i  in 0 until childCount){
+        for (i in 0 until childCount) {
             val imageView = indicatorContainer.getChildAt(i) as ImageView
             imageView.scaleType = ImageView.ScaleType.FIT_END
-            val layoutParams: LinearLayout.LayoutParams =
-                LinearLayout.LayoutParams(MATCH_PARENT, MATCH_PARENT )
+            val layoutParams = LinearLayout.LayoutParams(MATCH_PARENT, MATCH_PARENT)
             imageView.layoutParams = layoutParams
-            if(i == position){
+            if (i == position) {
+                // Set active indicator
                 imageView.setImageDrawable(
                     ContextCompat.getDrawable(
                         applicationContext,
@@ -140,6 +163,7 @@ class OnboardingActivity : AppCompatActivity() {
                     )
                 )
             } else {
+                // Set inactive indicator
                 imageView.setImageDrawable(
                     ContextCompat.getDrawable(
                         applicationContext,
